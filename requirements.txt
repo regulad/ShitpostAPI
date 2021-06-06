@@ -1,3 +1,5 @@
 aiohttp
 ffmpeg-python
 motor
+dnspython >= 2.1.0
+jsonschema

@@ -1,0 +1,30 @@
+{
+  "$schema": "http://json-schema.org/draft/2019-09/schema#",
+  "$id": "https://www.regulad.xyz/ShitpostAPI/edits_schema.json",
+
+  "definitions": {
+    "edit": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "parameters": {
+          "type": "object"
+        }
+      },
+      "required": [
+        "name",
+        "parameters"
+      ]
+    }
+  },
+
+  "type": "object",
+  "properties": {
+    "edits": {
+      "type": "array",
+      "items": {"$ref": "#/definitions/edit"}
+    }
+  }
+}

@@ -12,10 +12,13 @@ Environment Variables:
 * `SHITPOST_API_HOST`: Configures the webserver host. Default is `0.0.0.0`.
 * `SHITPOST_API_URI`: MongoDB connection URI. Default is `mongodb://localhost:27107`.
 * `SHITPOST_API_DB`: MongoDB database name. Default is `shitposts`.
+* `SHITPOST_API_CACHE`: Relative (or absolute) path of the file cache. Default is `downloads/`
 
 ## API
 
 ### POST `/edit`
+
+Returns a stream of bytes from a multipart request to edit a video.
 
 Form fields:
 
@@ -23,7 +26,7 @@ Form fields:
     * Type: Bytes
     * Content: The media you wish to edit, in bytes.
     * Headers:
-        * Content-Type: The MIME type of the media.
+        * Content-Type: The MIME type of the media. Currently, `video/mp4` is supported.
 * Edits:
     * Type: String
     * Content: A JSON-Encoded string of the commands you wish to execute and their values.
@@ -34,13 +37,21 @@ Edits example:
 
 ```json
 {
-  "top_text": {
-    "text": "some_string"
-  },
-  "bottom_text": {
-    "text": "another_string"
-  }
+  "edits": [
+    {
+      "name": "caption",
+      "parameters": {
+        "top": "Some string, eh?"
+      }
+    }  
+  ]
 }
+```
+
+If an edit's parameters are incorrect, it will continue to the next edit. If you don't want to pass any arguments, simply pass an empty object.
+
+```json
+{}
 ```
 
 ### GET `/commands`
@@ -53,25 +64,23 @@ Example return:
 {
   "commands": [
     {
-      "name": "top_text",
+      "name": "caption",
       "parameters": [
         {
-          "name": "text",
-          "type": "str"
-        }
-      ],
-      "description": "Appends text in impact font to the top of an image."
-    },
-    {
-      "name": "bottom_text",
-      "parameters": [
+          "name": "top",
+          "type": null
+        },
         {
-          "name": "text",
-          "type": "str"
+          "name": "bottom",
+          "type": null
         }
       ],
-      "description": "Appends text in impact font to the bottom of an image."
+      "description": "Appends text in impact font the top or bottom of an image."
     }
   ]
 }
 ```
+
+A `null` parameters means that the command does not take arguments.
+
+A `null` type means that either the type cannot be translated into a string, or it takes any type.

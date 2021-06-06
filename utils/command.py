@@ -1,12 +1,31 @@
 from inspect import signature, Signature, Parameter
-from typing import List, Mapping
+from typing import List, Mapping, Optional
+from asyncio import iscoroutinefunction
+
+
+class FunctionIsNotCoroutine(Exception):
+    pass
 
 
 class EditCommand:
     """A command that the user can execute using the /edit/ endpoint."""
 
-    def __init__(self, function):
+    def __init__(
+            self,
+            function,
+            *,
+            name: Optional[str] = None,
+            parameters: Optional[List[Mapping[str, str]]] = None,
+            description: Optional[str] = None,
+    ):
+        if not iscoroutinefunction(function):
+            raise FunctionIsNotCoroutine
+
         self._function = function
+
+        self._name = name
+        self._parameters = parameters
+        self._description = description
 
     @property
     def function(self):
@@ -18,31 +37,33 @@ class EditCommand:
 
     @property
     def name(self) -> str:
-        return self.function.__name__
+        return self._name or self.function.__name__ or None
 
     @property
     def description(self) -> str:
-        return self.function.__doc__ or "None provided."
+        return self._description or self.function.__doc__ or None
 
     @property
-    def _parameters(self) -> Mapping[str, Parameter]:
-        return self._signature.parameters
+    def parameters(self) -> List[Mapping[str, str]]:
+        if self._parameters is None:
+            params_list = []
+            params = dict(self._signature.parameters)
+            del params["fp"]
 
-    @property
-    def parameters(self) -> List[dict]:
-        params_list = []
-        params = dict(self._parameters)
-        del params["fp"]
+            for parameter in params.values():
+                param_dict = {"name": parameter.name}
 
-        for parameter in params.values():
-            param_dict = {"name": parameter.name}
+                if parameter.annotation is not Parameter.empty:
+                    try:
+                        param_dict["type"] = parameter.annotation.__name__
+                    except AttributeError:
+                        param_dict["type"] = None
 
-            if parameter.annotation is not Parameter.empty:
-                param_dict["type"] = parameter.annotation.__name__
+                params_list.append(param_dict)
+        else:
+            params_list = None
 
-            params_list.append(param_dict)
-
-        return params_list
+        return self._parameters or params_list or None
 
     def __str__(self) -> str:
         return f"{self.name}: {self.description}"
@@ -58,10 +79,26 @@ class EditCommand:
 class CommandList(list):
     """A list that holds and registers commands."""
 
-    def command(self):
+    def command(
+            self,
+            *,
+            name: Optional[str] = None,
+            parameters: Optional[List[Mapping[str, str]]] = None,
+            description: Optional[str] = None,
+    ):
         """Decorator to add a command to the command list.
 
         A function should have one argument named fp, which is a file pointer to the file that should be edited.
         This should be the first positional argument."""
 
-        return lambda function: self.append(EditCommand(function))
+        def decorator(function):
+            self.append(
+                EditCommand(
+                    function,
+                    name=name,
+                    parameters=parameters,
+                    description=description
+                )
+            )
+
+        return decorator
