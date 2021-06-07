@@ -6,7 +6,17 @@ from utils.database import Document
 
 
 @web.middleware
-async def database_middleware(request: web.Request, handler):
+async def real_ip_behind_proxy(request: web.Request, handler):
+    """Changes the remote attribute of the request to the X-Real-IP, if present"""
+
+    if request.headers.get("X-Real-IP") is not None:
+        request = request.clone(remote=request.headers.get("X-Real-IP"))
+
+    return await handler(request)
+
+
+@web.middleware
+async def get_document(request: web.Request, handler):
     """Fetches the document for a user from their IP address."""
 
     request["document"] = await Document.get_from_id(
@@ -54,4 +64,4 @@ async def rate_limiter(request: web.Request, handler):
         return await handler(request)
 
 
-__all__ = ["database_middleware", "rate_limiter"]
+__all__ = ["get_document", "rate_limiter", "real_ip_behind_proxy"]
