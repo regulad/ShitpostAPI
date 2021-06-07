@@ -8,7 +8,7 @@ import os
 class CachedBinaryFile:
     """A cached binary file. It must be entered and exited."""
 
-    def __init__(self, path: str, initial_bytes: bytes) -> None:
+    def __init__(self, path: str, initial_bytes: Optional[bytes] = None) -> None:
         self._bytes = initial_bytes
         self._path = path
         self._file: Optional[FileIO] = None
@@ -19,7 +19,10 @@ class CachedBinaryFile:
 
     def __enter__(self) -> FileIO:
         self._file = FileIO(self.path, "wb+")
-        self._file.write(self._bytes)
+
+        if self._bytes is not None:
+            self._file.write(self._bytes)
+            self._file.seek(0)
 
         return self._file
 
@@ -41,6 +44,6 @@ class FileCache:
     def directory(self) -> str:
         return self._directory
 
-    def create_file(self, file_extension: str, initial_bytes: bytes) -> CachedBinaryFile:
+    def create_file(self, file_extension: str, initial_bytes: Optional[bytes] = None) -> CachedBinaryFile:
         file_name = f"{self.directory}{''.join(choice(ascii_letters) for _ in range(15))}.{file_extension}"
         return CachedBinaryFile(file_name, initial_bytes)

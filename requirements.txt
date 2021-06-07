@@ -1,5 +1,6 @@
 aiohttp
-ffmpeg-python
+git+https://github.com/regulad/ffmpeg-python.git
 motor
 dnspython >= 2.1.0
 jsonschema
+pillow

@@ -48,7 +48,7 @@ class EditCommand:
         if self._parameters is None:
             params_list = []
             params = dict(self._signature.parameters)
-            del params["fp"]
+            del params["request"]
 
             for parameter in params.values():
                 param_dict = {"name": parameter.name}
@@ -88,7 +88,7 @@ class CommandList(list):
     ):
         """Decorator to add a command to the command list.
 
-        A function should have one argument named fp, which is a file pointer to the file that should be edited.
+        A function should have one argument named request, which is the request that invoked the edit.
         This should be the first positional argument."""
 
         def decorator(function):
