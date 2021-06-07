@@ -1,13 +1,12 @@
-from typing import Optional
 from io import FileIO
+from json import load
 from os.path import splitext
+from typing import Optional
 
 from aiohttp import web, BodyPartReader, hdrs
-from json import load
 from jsonschema import validate, ValidationError
 
 from utils.command import EditCommand
-
 
 routes = web.RouteTableDef()
 

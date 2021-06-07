@@ -1,6 +1,6 @@
+from asyncio import iscoroutinefunction
 from inspect import signature, Signature, Parameter
 from typing import List, Mapping, Optional
-from asyncio import iscoroutinefunction
 
 
 class FunctionIsNotCoroutine(Exception):

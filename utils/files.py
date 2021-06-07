@@ -1,8 +1,8 @@
-from typing import Optional
+import os
 from io import FileIO
 from random import choice
 from string import ascii_letters
-import os
+from typing import Optional
 
 
 class CachedBinaryFile:

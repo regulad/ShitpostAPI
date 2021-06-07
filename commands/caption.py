@@ -1,16 +1,15 @@
-from utils.command import CommandList
-from typing import Optional
 from asyncio import get_event_loop
 from io import FileIO, BytesIO
 from os.path import splitext
+from typing import Optional
 
-from PIL import Image, ImageFont, ImageDraw
 import ffmpeg
+from PIL import Image, ImageFont, ImageDraw
 from aiohttp.web import Request
 
+from utils.command import CommandList
 
 IMPACT_FONT = ImageFont.truetype("resources/maximum-impact.ttf", 75)
-
 
 commands = CommandList()
 

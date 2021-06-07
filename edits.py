@@ -1,12 +1,8 @@
-import importlib
 import importlib.util
-import sys
 import os
-
-from aiohttp import web
+import sys
 
 from utils.command import CommandList
-
 
 commands = CommandList()
 

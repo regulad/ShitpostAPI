@@ -6,17 +6,14 @@ If you want to run the webserver with an external provisioning/management system
 run the awaitable create_app.
 """
 
-
 from os import environ
-from json import load
 
-from motor.motor_asyncio import AsyncIOMotorClient
 from aiohttp import web
+from motor.motor_asyncio import AsyncIOMotorClient
 
-
-from utils.files import FileCache
 from edits import commands
 from routes import routes
+from utils.files import FileCache
 
 
 async def create_app():
