@@ -62,7 +62,7 @@ async def caption(
 
     media_cache: FileIO = request["media_cache"]
 
-    probe_result = await ffmpeg.probe_asyncio(media_cache.name)
+    probe_result: dict = await ffmpeg.probe_asyncio(media_cache.name)
 
     width: int = probe_result["streams"][0]["width"]
     height: int = probe_result["streams"][0]["height"]
