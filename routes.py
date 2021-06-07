@@ -56,6 +56,8 @@ async def post_edit(request: web.Request):
 
     if media_bytes is None or edits_json is None:
         raise web.HTTPBadRequest(reason="Missing a required field.")
+    elif len(media_bytes) > 20000000:
+        raise web.HTTPRequestEntityTooLarge(max_size=20000000, actual_size=len(media_bytes))
 
     try:
         validate(edits_json, EDITS_SCHEMA)

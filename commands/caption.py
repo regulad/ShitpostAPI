@@ -25,18 +25,18 @@ def caption_executor(
 
     if top is not None:
         idraw.text(
-            (width / 2, 65),
+            (width / 2, 25),
             top,
             font=IMPACT_FONT,
             fill=(255, 255, 255, 255),
-            anchor="ms",
+            anchor="mt",
             stroke_width=5,
             stroke_fill=(0, 0, 0, 255),
         )
 
     if bottom is not None:
         idraw.text(
-            (width / 2, height - 10),
+            (width / 2, height - 25),
             bottom,
             font=IMPACT_FONT,
             fill=(255, 255, 255, 255),
@@ -58,7 +58,7 @@ async def caption(
         top: Optional[str] = None,
         bottom: Optional[str] = None
 ) -> bytes:
-    """Appends text to the top of an image."""
+    """Appends text to the top of an image. Multi-line text is not supported."""
 
     media_cache: FileIO = request["media_cache"]
 

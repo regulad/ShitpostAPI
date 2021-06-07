@@ -24,7 +24,7 @@ Form fields:
 
 * Media:
     * Type: Bytes
-    * Content: The media you wish to edit, in bytes.
+    * Content: The media you wish to edit, in bytes. Limited to 20MB, for performance reasons.
     * Headers:
         * Content-Type: The MIME type of the media. Currently, `video/mp4` is supported.
 * Edits:
