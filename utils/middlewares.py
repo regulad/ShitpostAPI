@@ -45,9 +45,9 @@ async def rate_limiter(request: web.Request, handler):
 
     if document.setdefault("requests_this_period", 0) > document.setdefault("requests_per_period", 90):
         raise web.HTTPTooManyRequests
-    elif request.content_length > document.setdefault("max_size", 20000000):  # Maybe can be manipulated?
+    elif len(await request.read()) > document.setdefault("max_size", 20000000):  # Maybe can be manipulated?
         raise web.HTTPRequestEntityTooLarge(
-            actual_size=request.content_length,
+            actual_size=len(await request.read()),
             max_size=document.setdefault("max_size", 20000000),
         )
     else:
