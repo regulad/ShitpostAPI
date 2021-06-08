@@ -1,6 +1,6 @@
 import datetime
 
-from aiohttp import web
+from aiohttp import web, hdrs
 
 from utils.database import Document
 
@@ -36,7 +36,7 @@ async def rate_limiter(request: web.Request, handler):
     time_now = datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc)
 
     # Update/get the retry-after
-    if document.setdefault("period_start", time_now.timestamp()) <= time_now.timestamp():
+    if document.get("period_start", time_now.timestamp()) <= time_now.timestamp():
         time_later = time_now + datetime.timedelta(hours=1)
         await document.update_db({"$set": {"period_start": time_later.timestamp(), "requests_this_period": 0}})
     else:
@@ -44,20 +44,21 @@ async def rate_limiter(request: web.Request, handler):
     await document.update_db({"$inc": {"requests_this_period": 1}})
 
     # The maximum amount of requests a user can make per-hour.
-    request["X-RateLimit-Limit"] = request["document"].setdefault("requests_per_period", 90)
+    request["X-RateLimit-Limit"] = request["document"].get("requests_per_period", 90)
 
     # The amount of rate-limits remaining.
-    request["X-RateLimit-Remaining"] = document.setdefault("requests_per_period", 90) \
-                                       - document.setdefault("requests_this_period", 0)
+    request["X-RateLimit-Remaining"] = document.get("requests_per_period", 90) \
+                                       - document.get("requests_this_period", 0)
 
     # When the next period comes.
     request["X-RateLimit-Reset"] = (time_later - time_now).total_seconds()
 
-    if document.setdefault("requests_this_period", 0) > document.setdefault("requests_per_period", 90):
+    if document.get("requests_this_period", 0) > document.get("requests_per_period", 90):
         raise web.HTTPTooManyRequests
-    elif len(await request.read()) > document.setdefault("max_size", 20000000):  # Maybe can be manipulated?
+    elif float(request.headers.get(hdrs.CONTENT_LENGTH, "0")) > document.get("max_size", 20000000):
+        # TODO: Maybe can be manipulated? Not sure. I barely know HTTP.
         raise web.HTTPRequestEntityTooLarge(
-            actual_size=len(await request.read()),
+            actual_size=float(request.headers.get(hdrs.CONTENT_LENGTH, "0")),
             max_size=document.setdefault("max_size", 20000000),
         )
     else:

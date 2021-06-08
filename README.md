@@ -41,6 +41,14 @@ No other sensitive information is stored with this IP address, besides informati
 
 ### Endpoints
 
+#### GET `/`
+
+Return the lines of this file: `README.md`.
+
+#### GET `/user`
+
+Returns all the data on you that is stored in the database. Yay, transparency!
+
 #### POST `/edit`
 
 Returns a stream of bytes from a multipart request to edit a video.

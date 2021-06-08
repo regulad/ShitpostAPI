@@ -13,6 +13,20 @@ routes = web.RouteTableDef()
 EDITS_SCHEMA = load(open("resources/edits_schema.json"))
 FILE_TYPES = load(open("resources/types.json"))
 
+README_FILE = []
+for line in open("README.md").readlines():
+    README_FILE.append(line.strip())
+
+
+@routes.get("/")
+async def get_docs(request: web.Request):
+    return web.json_response({"lines": README_FILE})
+
+
+@routes.get("/user")
+async def get_user(request: web.Request):
+    return web.json_response(request["document"])
+
 
 @routes.post("/edit")
 async def post_edit(request: web.Request):

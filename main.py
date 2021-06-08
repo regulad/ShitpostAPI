@@ -7,7 +7,6 @@ run the awaitable create_app.
 """
 
 from os import environ
-from collections import deque
 
 from aiohttp import web
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -30,7 +29,6 @@ async def create_app():
     app["database"] = app["database_connection"][environ.setdefault("SHITPOST_API_DB", "shitposts")]
     app["editing_commands"] = commands
     app["file_cache"] = FileCache(environ.setdefault("SHITPOST_API_CACHE", "downloads/"))
-    app["document_cache"] = deque(maxlen=300)
 
     # Routes
     app.add_routes(routes)
