@@ -91,3 +91,79 @@ async def caption(
             out_bytes = out_media.read()
 
         return out_bytes
+
+
+def frame_executor(
+        width: int,
+        height: int,
+) -> bytes:
+    image = Image.new("RGB", (width, height), (0, 0, 0))
+    idraw = ImageDraw.Draw(image)
+
+    idraw.rectangle(
+        [
+            (width / 20, height / 20),
+            (width - width / 20, height - height / 20),
+        ],
+        (150, 150, 150),
+        (255, 255, 255),
+        10
+    )
+
+    buffer = BytesIO()
+    image.save(buffer, "PNG")
+    buffer.seek(0)
+
+    return buffer.read()
+
+
+@commands.command()
+async def frame(
+        request: Request,
+        bottom: str,
+) -> bytes:
+    """Frames an image with text at the bottom."""
+
+    media_cache: FileIO = request["media_cache"]
+
+    probe_result: dict = await ffmpeg.probe_asyncio(media_cache.name)
+
+    width: int = probe_result["streams"][0]["width"]
+    height: int = probe_result["streams"][0]["height"]
+
+    underlay_bytes = await get_event_loop().run_in_executor(None, lambda: frame_executor(width, height))
+    overlay_bytes = await get_event_loop().run_in_executor(None, lambda: caption_executor(width, height, bottom=bottom))
+
+    with request.app["file_cache"].create_file("png", underlay_bytes) as underlay, \
+            request.app["file_cache"].create_file("png", overlay_bytes) as overlay:
+        underlay: FileIO
+        overlay: FileIO
+
+        media_stream = ffmpeg.input(media_cache.name)
+        underlay_stream = ffmpeg.input(underlay.name)
+        overlay_stream = ffmpeg.input(overlay.name)
+
+        media_audio = media_stream.audio
+        media_video = media_stream.video
+
+        media_video = ffmpeg.filter(media_video, "scale", w=width * 0.885, h=height * 0.885)
+
+        media_video = ffmpeg.overlay(
+            underlay_stream,
+            media_video,
+            x=(width - width * 0.885) / 2,
+            y=(height - height * 0.885) / 2
+        )
+        media_video = ffmpeg.overlay(media_video, overlay_stream)
+
+        with request.app["file_cache"].create_file(splitext(media_cache.name)[1].strip(".")) as out_media:
+            out_media: FileIO
+
+            media_stream = ffmpeg.output(media_audio, media_video, out_media.name)
+
+            await ffmpeg.run_asyncio(media_stream, overwrite_output=True)
+
+            out_media.seek(0)
+            out_bytes = out_media.read()
+
+        return out_bytes
