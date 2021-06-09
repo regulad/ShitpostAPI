@@ -120,3 +120,17 @@ async def get_commands(request: web.Request):
     return_json = {"commands": accessible_commands}
 
     return web.json_response(return_json)
+
+
+@routes.get("/commands/{command_name}")
+async def get_command(request: web.Request):
+    """Returns info on a single command."""
+
+    for command in request.app["editing_commands"]:
+        if command.name == request.match_info["command_name"]:
+            desired_command: EditCommand = command
+            break
+    else:
+        raise web.HTTPBadRequest(reason="Command doesn't exist.")
+
+    return web.json_response(desired_command.__dict__())

@@ -117,3 +117,8 @@ Example return:
 A `null` parameters means that the command does not take arguments.
 
 A `null` type means that either the type cannot be translated into a string, or it takes any type.
+
+
+### GET `/commands/{command_name}`
+
+Same as `commands`, but it looks up a single command.
