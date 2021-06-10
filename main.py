@@ -25,7 +25,7 @@ async def create_app():
     app = web.Application(middlewares=[real_ip_behind_proxy, get_document, rate_limiter])
 
     # Config
-    app["database_connection"] = AsyncIOMotorClient(environ.setdefault("SHITPOST_API_URI", "mongodb://localhost:27107"))
+    app["database_connection"] = AsyncIOMotorClient(environ.setdefault("SHITPOST_API_URI", "mongodb://mongo:27107"))
     app["database"] = app["database_connection"][environ.setdefault("SHITPOST_API_DB", "shitposts")]
     app["editing_commands"] = commands
     app["file_cache"] = FileCache(environ.setdefault("SHITPOST_API_CACHE", "downloads/"))

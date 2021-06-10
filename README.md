@@ -10,7 +10,7 @@ Environment Variables:
 
 * `SHITPOST_API_PORT`: Configures the webserver port. Default is `8081`.
 * `SHITPOST_API_HOST`: Configures the webserver host. Default is `0.0.0.0`.
-* `SHITPOST_API_URI`: MongoDB connection URI. Default is `mongodb://localhost:27107`.
+* `SHITPOST_API_URI`: MongoDB connection URI. Default is `mongodb://mongo:27107`.
 * `SHITPOST_API_DB`: MongoDB database name. Default is `shitposts`.
 * `SHITPOST_API_CACHE`: Relative (or absolute) path of the file cache. Default is `downloads/`
 
