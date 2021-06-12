@@ -20,7 +20,7 @@ for line in open("README.md").readlines():
 
 @routes.get("/")
 async def get_docs(request: web.Request):
-    return web.json_response({"lines": README_FILE})
+    return web.json_response(README_FILE)
 
 
 @routes.get("/user")

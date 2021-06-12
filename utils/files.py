@@ -47,3 +47,6 @@ class FileCache:
     def create_file(self, file_extension: str, initial_bytes: Optional[bytes] = None) -> CachedBinaryFile:
         file_name = f"{self.directory}{''.join(choice(ascii_letters) for _ in range(15))}.{file_extension}"
         return CachedBinaryFile(file_name, initial_bytes)
+
+
+__all__ = ["CachedBinaryFile", "FileCache"]

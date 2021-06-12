@@ -15,14 +15,14 @@ from edits import commands
 from routes import routes
 from utils.files import FileCache
 from utils.middlewares import *
-from utils.signals import set_ratelimit_headers
+from utils.signals import *
 
 
 async def create_app():
     """Create an app and configure it."""
 
     # Create the app
-    app = web.Application(middlewares=[real_ip_behind_proxy, get_document, rate_limiter])
+    app = web.Application(middlewares=MIDDLEWARE_CHAIN)
 
     # Config
     app["database_connection"] = AsyncIOMotorClient(environ.setdefault("SHITPOST_API_URI", "mongodb://mongo:27107"))
@@ -34,7 +34,7 @@ async def create_app():
     app.add_routes(routes)
 
     # Signals
-    app.on_response_prepare.append(set_ratelimit_headers)
+    app.on_response_prepare.extend(ON_RESPONSE_PREPARE_SIGNALS)
 
     # Off we go!
     return app

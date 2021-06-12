@@ -65,4 +65,7 @@ async def rate_limiter(request: web.Request, handler):
         return await handler(request)
 
 
-__all__ = ["get_document", "rate_limiter", "real_ip_behind_proxy"]
+MIDDLEWARE_CHAIN: list = [real_ip_behind_proxy, get_document, rate_limiter]
+
+
+__all__ = ["MIDDLEWARE_CHAIN"]

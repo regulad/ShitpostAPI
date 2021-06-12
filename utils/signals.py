@@ -9,4 +9,7 @@ async def set_ratelimit_headers(request: web.Request, response: web.Response) ->
     response.headers["X-RateLimit-Reset"] = str(request.get("X-RateLimit-Reset"))
 
 
-__all__ = ["set_ratelimit_headers"]
+ON_RESPONSE_PREPARE_SIGNALS: list = [set_ratelimit_headers]
+
+
+__all__ = ["ON_RESPONSE_PREPARE_SIGNALS"]
