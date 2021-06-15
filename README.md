@@ -10,7 +10,7 @@ Environment Variables:
 
 * `SHITPOST_API_PORT`: Configures the webserver port. Default is `8081`.
 * `SHITPOST_API_HOST`: Configures the webserver host. Default is `0.0.0.0`.
-* `SHITPOST_API_URI`: MongoDB connection URI. Default is `mongodb://mongo:27107`.
+* `SHITPOST_API_URI`: MongoDB connection URI. Default is `mongodb://mongo`.
 * `SHITPOST_API_DB`: MongoDB database name. Default is `shitposts`.
 * `SHITPOST_API_CACHE`: Relative (or absolute) path of the file cache. Default is `downloads/`
 
@@ -59,7 +59,7 @@ Form fields:
     * Type: Bytes
     * Content: The media you wish to edit, in bytes. Limited to 20MB, for performance reasons.
     * Headers:
-        * Content-Type: The MIME type of the media. Currently, `video/mp4` is supported.
+        * Content-Type: The MIME type of the media.
 * Edits:
     * Type: String
     * Content: A JSON-Encoded string of the commands you wish to execute and their values.

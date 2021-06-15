@@ -95,7 +95,12 @@ async def post_edit(request: web.Request):
 
             request["media_cache"].seek(0)
 
-            out_bytes = await command.function(request, **edit["parameters"])
+            params: dict = edit.get("parameters", {})
+
+            if "request" in params.keys():
+                raise web.HTTPBadRequest(reason=f"{edit['name']} features an illegal parameter.")
+
+            out_bytes = await command.function(request, **params)
             request["media_cache"].truncate()
             request["media_cache"].write(out_bytes)
 

@@ -5,7 +5,7 @@ from typing import Optional
 
 import ffmpeg
 from PIL import Image, ImageFont, ImageDraw
-from aiohttp.web import Request
+from aiohttp import web
 
 from utils.command import CommandList
 
@@ -53,7 +53,7 @@ def caption_executor(
 
 @commands.command()
 async def caption(
-        request: Request,
+        request: web.Request,
         top: Optional[str] = None,
         bottom: Optional[str] = None
 ) -> bytes:
@@ -63,8 +63,15 @@ async def caption(
 
     probe_result: dict = await ffmpeg.probe_asyncio(media_cache.name)
 
-    width: int = probe_result["streams"][0]["width"]
-    height: int = probe_result["streams"][0]["height"]
+    for stream in probe_result["streams"]:
+        if stream["codec_type"] == "video":
+            video_stream: dict = stream
+            break
+    else:
+        raise web.HTTPBadRequest(reason="No video found in stream.")
+
+    width: int = video_stream["width"]
+    height: int = video_stream["height"]
 
     overlay_bytes: bytes = await get_event_loop().run_in_executor(
         None, lambda: caption_executor(width, height, top, bottom)
@@ -112,15 +119,22 @@ def header_executor(width: int, height: int, top: str) -> bytes:
 
 
 @commands.command()
-async def header(request: Request, top: str):
+async def header(request: web.Request, top: str):
     """Extends the top of an image and adds text."""
 
     media_cache: FileIO = request["media_cache"]
 
     probe_result: dict = await ffmpeg.probe_asyncio(media_cache.name)
 
-    width: int = probe_result["streams"][0]["width"]
-    height: int = probe_result["streams"][0]["height"]
+    for stream in probe_result["streams"]:
+        if stream["codec_type"] == "video":
+            video_stream: dict = stream
+            break
+    else:
+        raise web.HTTPBadRequest(reason="No video found in stream.")
+
+    width: int = video_stream["width"]
+    height: int = video_stream["height"]
 
     underlay_bytes: bytes = await get_event_loop().run_in_executor(None, lambda: header_executor(width, height, top))
 
@@ -145,3 +159,6 @@ async def header(request: Request, top: str):
 
         output_cache.seek(0)
         return output_cache.read()
+
+
+__all__ = ["commands"]
