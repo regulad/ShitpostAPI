@@ -1,6 +1,6 @@
 from asyncio import iscoroutinefunction
 from inspect import signature, Signature, Parameter
-from typing import List, Mapping, Optional
+from typing import List, Mapping, Optional, Coroutine, Any, Callable
 
 
 class FunctionIsNotCoroutine(Exception):
@@ -12,7 +12,7 @@ class EditCommand:
 
     def __init__(
             self,
-            function,
+            function: Callable[[Any, Any], Coroutine[Any, Any, Any]],
             *,
             name: Optional[str] = None,
             parameters: Optional[List[Mapping[str, str]]] = None,
@@ -21,14 +21,14 @@ class EditCommand:
         if not iscoroutinefunction(function):
             raise FunctionIsNotCoroutine
 
-        self._function = function
+        self._function: Callable[[Any, Any], Coroutine[Any, Any, Any]] = function
 
-        self._name = name
-        self._parameters = parameters
-        self._description = description
+        self._name: str | None = name
+        self._parameters: list[Mapping[str, str]] | None = parameters
+        self._description: str | None = description
 
     @property
-    def function(self):
+    def function(self) -> Callable[[Any, Any], Coroutine[Any, Any, Any]]:
         return self._function
 
     @property
@@ -85,20 +85,20 @@ class CommandList(list):
             name: Optional[str] = None,
             parameters: Optional[List[Mapping[str, str]]] = None,
             description: Optional[str] = None,
-    ):
+    ) -> Callable[[Callable[[Any, Any], Coroutine[Any, Any, Any]]], EditCommand]:
         """Decorator to add a command to the command list.
 
         A function should have one argument named request, which is the request that invoked the edit.
         This should be the first positional argument."""
 
-        def decorator(function):
-            self.append(
-                EditCommand(
-                    function,
-                    name=name,
-                    parameters=parameters,
-                    description=description
-                )
+        def decorator(function: Callable[[Any, Any], Coroutine[Any, Any, Any]]) -> EditCommand:
+            command: EditCommand = EditCommand(
+                function,
+                name=name,
+                parameters=parameters,
+                description=description
             )
+            self.append(command)
+            return command
 
         return decorator

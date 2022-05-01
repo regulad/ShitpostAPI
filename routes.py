@@ -1,6 +1,7 @@
 from io import FileIO
 from json import load
-from os.path import splitext
+from os import getcwd
+from os.path import splitext, join, realpath
 from typing import Optional
 
 from aiohttp import web, BodyPartReader, hdrs
@@ -10,12 +11,15 @@ from utils.command import EditCommand
 
 routes = web.RouteTableDef()
 
-EDITS_SCHEMA = load(open("resources/edits_schema.json"))
-FILE_TYPES = load(open("resources/types.json"))
+with open(join(realpath(getcwd()), "resources", "edits_schema.json")) as fp:
+    EDITS_SCHEMA: dict = load(fp)
 
-README_FILE = []
-for line in open("README.md").readlines():
-    README_FILE.append(line.strip())
+with open(join(realpath(getcwd()), "resources", "types.json")) as fp:
+    FILE_TYPES: dict = load(fp)
+
+
+with open(join(realpath(getcwd()), "README.md")) as fp:
+    README_FILE: list[str] = [line.strip() for line in fp.readlines()]
 
 
 @routes.get("/")
